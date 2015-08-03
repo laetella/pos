@@ -1,79 +1,99 @@
 //TODO: Please write code in this file.
-function printReceipt(inputs) {
-  var result_array = [];
-  var temp_array = [];
-  var actual_sum = 0;
-  var allItems = loadAllItems();
-  var allPromotions = loadPromotions();
-  for(var item = 0; item < inputs.length; item ++) {
-    for(var goods_item = 0; goods_item < allItems.length; goods_item ++) {
-      if (inputs[item] === allItems[goods_item].barcode) {
-        temp_array.push(allItems[goods_item]);
-      } else if (inputs[item].substring(0,allItems[goods_item].barcode.length) === allItems[goods_item].barcode){
-         temp_array.push(allItems[goods_item]);
-         temp_array[temp_array.length-1].count = inputs[item].substring(allItems[goods_item].barcode.length+1, inputs[item].length);
-        //  console.log(temp_array[temp_array.length-1].count);
-      }
-    }
-  }
+//打印日期的类  输出数据的类  计算价格的类
+//1st  step： 把inputs中的所有商品 转换成 一个存放商品所有信息的数组
+//2nd step： 把所有商品的数组 进行整理 变成 按商品种类划分的数组
+//3rd step：处理价格
+function date() {
+  dateDigitToString = function(num) {
+    return num < 10 ? '0' + num : num;
+  };
   var currentDate = new Date();
-  var formattedDateString;
-  formattedDateString = currentDate.getFullYear() + '年'
-                        + (parseInt(currentDate.getMonth() + 1) > 9?(currentDate.getMonth()+1).toString():'0' + (currentDate.getMonth()+1)) + '月'
-                        + (currentDate.getDate() > 9?currentDate.getDate().toString():'0' + currentDate.getDate()) + '日 '
-                        + currentDate.getHours() + ':'
-                        + currentDate.getMinutes() + ':'
-                        + (currentDate.getSeconds() > 9?currentDate.getSeconds().toString():'0' + currentDate.getSeconds());
-  var result_string = "***<没钱赚商店>收据***\n打印时间：" + formattedDateString + "\n----------------------\n";
-
-  // var result_string = "***<没钱赚商店>收据***\n打印时间："+ +"\n";
-  var sum = 0;
-  var sign = false;
-  var array_length = 0;
-  for(var item = 0; item < temp_array.length; item++) {
-    // console.log(result_array[item].count);
-    if(temp_array[item].count == 2 ) {
-      result_array.push(temp_array[item]);
-      // console.log(result_array);
-      continue;
-    }
-    for(var result_item = 0; result_item < result_array.length; result_item++) {
-      if(result_array[result_item].name === temp_array[item].name) {
-        result_array[result_item].count ++;
-        sign = true;
-        break;
+  this.year = dateDigitToString(currentDate.getFullYear());
+  this.month = dateDigitToString(currentDate.getMonth() + 1);
+  this.date = dateDigitToString(currentDate.getDate());
+  this.hour = dateDigitToString(currentDate.getHours());
+  this.minute = dateDigitToString(currentDate.getMinutes());
+  this.second = dateDigitToString(currentDate.getSeconds());
+  this.getCurrentDate = function() {
+    return this.year + '年' + this.month + '月' + this.date + '日 ' + this.hour + ':' + this.minute + ':' + this.second;
+  }
+}
+function count_item() {
+  this.temp_array = [];
+  this.allItems = loadAllItems();
+  this.result_array = [];
+  this.array_length = 0;
+  this.actual_sum = 0;
+  this.allPromotions = loadPromotions();
+  this.sum = 0;
+  this.itemString = "";
+  this.storeItem = function(inputs) {
+    for(var item = 0; item < inputs.length; item ++) {
+      for(var goods_item = 0; goods_item < this.allItems.length; goods_item ++) {
+        if (inputs[item] === this.allItems[goods_item].barcode) {
+          this.temp_array.push(this.allItems[goods_item]);
+        } else if (inputs[item].substring(0,this.allItems[goods_item].barcode.length) === this.allItems[goods_item].barcode){
+           this.temp_array.push(this.allItems[goods_item]);
+           this.temp_array[this.temp_array.length-1].count = inputs[item].substring(this.allItems[goods_item].barcode.length+1, inputs[item].length);
+        }
       }
-      sign = false;
     }
-    if(sign === false) {
-      result_array.push({
-                name:temp_array[item].name,
-                count:1,
-                price:temp_array[item].price,
-                unit:temp_array[item].unit});
-    }
-    // console.log(result_array[item]);
   }
-
-  for(var result_item = 0; result_item < result_array.length; result_item++) {
-    var temp_sum;
-
-    actual_sum += result_array[result_item].count * result_array[result_item].price;
-
-    if(result_array[result_item].count < 3) {
-      temp_sum = (result_array[result_item].count * result_array[result_item].price);
-    } else {
-      temp_count = result_array[result_item].count - parseInt(result_array[result_item].count/3);
-      temp_sum = (temp_count * result_array[result_item].price);
+  this.addItem = function(inputs) {
+    this.storeItem(inputs);
+    var sign = false;
+    for(var item = 0; item < this.temp_array.length; item++) {
+      if(this.temp_array[item].count == 2 ) {
+        this.result_array.push(this.temp_array[item]);
+        continue;
+      }
+      for(var result_item = 0; result_item < this.result_array.length; result_item++) {
+        if(this.result_array[result_item].name === this.temp_array[item].name) {
+          this.result_array[result_item].count ++;
+          sign = true;
+          break;
+        }
+        sign = false;
+      }
+      if(sign === false) {
+        this.result_array.push({
+                  name:this.temp_array[item].name,
+                  count:1,
+                  price:this.temp_array[item].price,
+                  unit:this.temp_array[item].unit});
+      }
     }
-    result_string += "名称：" + result_array[result_item].name
-                  + "，数量：" + result_array[result_item].count + result_array[result_item].unit
-                  + "，单价：" + result_array[result_item].price.toFixed(2)
-                  + "(元)，小计：" + temp_sum.toFixed(2)
-                  + "(元)\n";
-    sum +=  temp_sum;
   }
-  // console.log(actual_sum);
-  result_string += "----------------------\n总计：" + sum.toFixed(2) + "(元)\n节省："+ (actual_sum - sum).toFixed(2) + "(元)\n**********************";
+  this.calculatePrice = function(inputs) {
+    return this.sum;
+  }
+  this.printItem = function(inputs) {
+    this.addItem(inputs);
+    for(var result_item = 0; result_item < this.result_array.length; result_item++) {
+      var temp_sum;
+      this.actual_sum += this.result_array[result_item].count * this.result_array[result_item].price;
+      if(this.result_array[result_item].count < 3) {
+        temp_sum = (this.result_array[result_item].count * this.result_array[result_item].price);
+      } else {
+        temp_count = this.result_array[result_item].count - parseInt(this.result_array[result_item].count/3);
+        temp_sum = (temp_count * this.result_array[result_item].price);
+      }
+      this.itemString += "名称：" + this.result_array[result_item].name
+                    + "，数量：" + this.result_array[result_item].count + this.result_array[result_item].unit
+                    + "，单价：" + this.result_array[result_item].price.toFixed(2)
+                    + "(元)，小计：" + temp_sum.toFixed(2)
+                    + "(元)\n";
+      this.sum += temp_sum;
+    }
+    return this.itemString;
+  }
+  this.subPrice = function() {
+    return this.actual_sum - this.sum;
+  }
+}
+function printReceipt(inputs) {
+  var result_string = "***<没钱赚商店>收据***\n打印时间：" + new date().getCurrentDate() + "\n----------------------\n";
+  var obj = new count_item();
+  result_string += obj.printItem(inputs) + "----------------------\n总计：" + obj.calculatePrice(inputs).toFixed(2) + "(元)\n节省："+ obj.subPrice().toFixed(2) + "(元)\n**********************";
   console.log(result_string);
 }
