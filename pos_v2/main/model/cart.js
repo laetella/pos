@@ -1,53 +1,54 @@
-function Cart(single_item) {
-  this.goods_item = single_item;
+function Cart() {
   this.result_array = [];
-  this.actual_sum = 0;
-  this.sum = 0;
-  this.itemString = "";
 }
-Cart.prototype.addItem = function(single_item) {
+Cart.prototype.addItem = function(barcode,count) {
   var sign = false;
   for(var item = 0; item < this.result_array.length; item++) {
-    if(this.result_array[item].barcode === single_item.barcode) {
-  //    if(this.result_array[item].count === 1) {
-        this.result_array[item].count ++;
+    if(this.result_array[item].barcode === barcode) {
+        this.result_array[item].count += count;
         sign = true;
         break;
-  //    } else {
-  //      this.result_array[item].count = single_item.count;
-  //      sign = true;
-  //      break;
-      //}
     }
     sign = false;
   }
   if (sign === false) {
-    this.result_array.push(single_item);
+    var newCartItem = new CartItem(barcode,count);
+    newCartItem.setItem(barcode);
+    // this.result_array.push({barcode : newCartItem.barcode,
+    //                         name : newCartItem._item.name,
+    //                         count : newCartItem.count,
+    //                         single_price : newCartItem._item.single_price,
+    //                         unit : newCartItem._item.unit});
+    this.result_array.push(newCartItem);
+    // console.log(newCartItem.getSubPrice());
   }
   return this.result_array;
 };
 Cart.prototype.calculatePrice = function() {
-  return this.sum;
+  var sum = 0;
+  for(var result_item = 0; result_item < this.result_array.length; result_item++) {
+    console.log(this.result_array);
+    sum += this.result_array[result_item].getSubPrice();
+  //  console.log(this.result_array[result_item].getSubPrice());
+  }
+  return sum;
 };
 Cart.prototype.savePrice = function() {
-  return this.actual_sum - this.sum;
+  var actual_sum = 0;
+  for(var result_item = 0; result_item < this.result_array.length; result_item++) {
+    actual_sum += this.result_array[result_item].count * this.result_array[result_item]._item.single_price;
+  }
+  return actual_sum - this.calculatePrice();
 };
 Cart.prototype.printItem = function() {
+  var itemString = "";
   for(var result_item = 0; result_item < this.result_array.length; result_item++) {
-    var temp_sum;
-    this.actual_sum += this.result_array[result_item].count * this.result_array[result_item].single_price;
-    if(this.result_array[result_item].count < 3) {
-      temp_sum = (this.result_array[result_item].count * this.result_array[result_item].single_price);
-    } else {
-      temp_count = this.result_array[result_item].count - parseInt(this.result_array[result_item].count/3);
-      temp_sum = (temp_count * this.result_array[result_item].single_price);
-    }
-    this.itemString += "名称：" + this.result_array[result_item].name
-                  + "，数量：" + this.result_array[result_item].count + this.result_array[result_item].unit
-                  + "，单价：" + this.result_array[result_item].single_price
-                  + "(元)，小计：" + temp_sum.toFixed(2)
+
+    itemString += "名称：" + this.result_array[result_item]._item.name
+                  + "，数量：" + this.result_array[result_item].count + this.result_array[result_item]._item.unit
+                  + "，单价：" + this.result_array[result_item]._item.single_price
+                  + "(元)，小计：" + this.result_array[result_item].getSubPrice()
                   + "(元)\n";
-    this.sum += temp_sum;
   }
-  return this.itemString;
+  return itemString;
 };

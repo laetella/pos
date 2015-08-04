@@ -1,32 +1,29 @@
 function CartItem(barcode,count) {
-  this.allItems = loadAllItems();
   this.barcode = barcode;
-  this.name = '';
-  this.unit = '';
   this.count = count;
+  this._item = {};
   this.price = 0.00;
-  this.single_price = 0.00;
-}
-// CartItem.prototype.getSubPrice = function (barcode,count) {
-//   for(var goods_item = 0; goods_item < this.allItems.length; goods_item ++) {
-//     if (barcode === this.allItems[goods_item].barcode){
-//        return (this.allItems[goods_item].price * this.count).toFixed(2);
-//     }
-//   }
-// };
-CartItem.prototype.setItem = function(barcode,count) {
-    for(item = 0; item < this.allItems.length; item ++) {
-      if(barcode === this.allItems[item].barcode) {
-        this.barcode = barcode;
-        this.name = this.allItems[item].name;
-        this.unit = this.allItems[item].unit;
-        this.count = count;
-        this.single_price = this.allItems[item].price.toFixed(2);
-        this.price = (this.single_price * this.count).toFixed(2);
-        console.log(this.count);
-        // console.log(this.allItems[item].price);
-        console.log(this.single_price);
-        break;
+  this.setItem = function(barcode) {
+    var allItems= loadAllItems();
+      for(item = 0; item < allItems.length; item ++) {
+        if(barcode === allItems[item].barcode) {
+          this._item.single_price = allItems[item].price.toFixed(2);
+          this._item.name = allItems[item].name;
+          this._item.unit = allItems[item].unit;
+          break;
+        }
+      }
+  }
+  this.getSubPrice = function () {
+    var allPromotions = loadPromotions();
+    var temp_count = this.count;
+    for(var prom = 0; prom < allPromotions.length; prom ++) {
+      if(this.barcode === allPromotions[prom].barcode) {
+        if(this.count >= 3) {
+          temp_count = (this.count - Math.floor(this.count/3));
+        }
+        return (temp_count * this._item.single_price);
       }
     }
+  }
 }
