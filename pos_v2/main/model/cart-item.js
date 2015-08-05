@@ -17,13 +17,13 @@ function CartItem(barcode,count) {
   this.getSubPrice = function () {
     var allPromotions = loadPromotions();
     var temp_count = this.count;
-    for(var prom = 0; prom < allPromotions.length; prom ++) {
-      if(this.barcode === allPromotions[prom].barcode) {
+    for(var prom = 0; prom < allPromotions[0].barcodes.length; prom ++) {
+      if(this.barcode === allPromotions[0].barcodes[prom]) {
         if(this.count >= 3) {
           temp_count = (this.count - Math.floor(this.count/3));
         }
-        return (temp_count * this._item.single_price);
       }
     }
+    return temp_count * this._item.single_price;
   }
 }
