@@ -1,45 +1,35 @@
 function Cart() {
-  this.result_array = [];
+  this.resultArray = [];
 }
-Cart.prototype.addItem = function(barcode,count) {
+
+Cart.prototype.addItem = function(tag) {
   var sign = false;
-  for(var item = 0; item < this.result_array.length; item++) {
-    if(this.result_array[item].barcode === barcode) {
-        this.result_array[item].count += count;
+  for(var item = 0; item < this.resultArray.length; item++) {
+    if(this.resultArray[item].barcode === tag.barcode) {
+        this.resultArray[item].count += tag.count;
         sign = true;
         break;
     }
-    sign = false;
   }
   if (sign === false) {
-    var newCartItem = new CartItem(barcode,count);
-    newCartItem.setItem(barcode);
-    this.result_array.push(newCartItem);
+    var newCartItem = new CartItem(tag);
+    this.resultArray.push(newCartItem);
   }
-  return this.result_array;
+  return this.resultArray;
 };
+
 Cart.prototype.calculatePrice = function() {
   var sum = 0;
-  for(var result_item = 0; result_item < this.result_array.length; result_item++) {
-    sum += this.result_array[result_item].getSubPrice();
+  for(var resultItem = 0; resultItem < this.resultArray.length; resultItem++) {
+    sum += this.resultArray[resultItem].getSubTotal();
   }
-  return sum.toFixed(2);
+  return sum;
 };
+
 Cart.prototype.savePrice = function() {
-  var actual_sum = 0;
-  for(var result_item = 0; result_item < this.result_array.length; result_item++) {
-    actual_sum += this.result_array[result_item].count * this.result_array[result_item]._item.single_price;
+  var actualSum = 0;
+  for(var resultItem = 0; resultItem < this.resultArray.length; resultItem++) {
+    actualSum += this.resultArray[resultItem].getSubActualTotal();
   }
-  return (actual_sum - this.calculatePrice()).toFixed(2);
-};
-Cart.prototype.printItem = function() {
-  var itemString = "";
-  for(var result_item = 0; result_item < this.result_array.length; result_item++) {
-    itemString += "名称：" + this.result_array[result_item]._item.name
-                  + "，数量：" + this.result_array[result_item].count + this.result_array[result_item]._item.unit
-                  + "，单价：" + this.result_array[result_item]._item.single_price
-                  + "(元)，小计：" + this.result_array[result_item].getSubPrice().toFixed(2)
-                  + "(元)\n";
-  }
-  return itemString;
+  return actualSum - this.calculatePrice();
 };

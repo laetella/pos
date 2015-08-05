@@ -1,15 +1,18 @@
-function Scanner(single_inputs) {
-  this.barcode = single_inputs;
-  this.count = 1;
+function Scanner() {
+
 }
-Scanner.prototype.getCount = function(single_inputs) {
+
+Scanner.prototype.getTag = function(singleInputs) {
  var  allItems = loadAllItems();
-  for(var goods_item = 0; goods_item < allItems.length; goods_item ++) {
-    if (single_inputs.length != allItems[goods_item].barcode.length){
-      this.barcode = single_inputs.substring(0, allItems[goods_item].barcode.length);
-      this.count = Number(single_inputs.substring(allItems[goods_item].barcode.length+1, single_inputs.length));
-      break;
+ var tag = {};
+  for(var goodsItem = 0; goodsItem < allItems.length; goodsItem ++) {
+    if (singleInputs.length != allItems[goodsItem].barcode.length){
+      tag.barcode = singleInputs.split('-')[0];
+      tag.count = singleInputs.split('-')[1];
+    } else {
+      tag.barcode = singleInputs;
+      tag.count = 1;
     }
   }
-return this.count;
+return tag;
 };
